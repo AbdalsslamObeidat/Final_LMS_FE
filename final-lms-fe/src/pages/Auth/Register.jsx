@@ -1,9 +1,10 @@
-import { Button, TextField, Typography, Paper, FormControlLabel, Checkbox } from '@mui/material';
+import { Button, TextField, Typography, Paper, FormControlLabel, Checkbox, IconButton, InputAdornment } from '@mui/material';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Register.module.css';
 import './Auth.css';
 import { FaGoogle } from 'react-icons/fa';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export default function Register() {
     terms: false 
   });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -22,6 +25,14 @@ export default function Register() {
       ...form,
       [name]: type === 'checkbox' ? checked : value
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(prev => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -56,7 +67,7 @@ export default function Register() {
     <div className={styles.container}>
       <Paper className={styles.form} elevation={0}>
         <Typography variant="h4" className={styles.title}>
-          Create Account
+          Signup
         </Typography>
         <Typography className={styles.subtitle}>
           Just some details to get you in!
@@ -83,22 +94,40 @@ export default function Register() {
         
         <TextField
           label="Password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           name="password"
           fullWidth
           margin="normal"
           onChange={handleChange}
           variant="outlined"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={togglePasswordVisibility} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         
         <TextField
           label="Confirm Password"
-          type="password"
+          type={showConfirmPassword ? 'text' : 'password'}
           name="confirmPassword"
           fullWidth
           margin="normal"
           onChange={handleChange}
           variant="outlined"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={toggleConfirmPasswordVisibility} edge="end">
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         
         <div className={styles.termsContainer}>
@@ -134,7 +163,7 @@ export default function Register() {
           sx={{ mt: 2 }}
           disabled={!form.terms}
         >
-          Sign Up
+          SignUp
         </Button>
         
         <div className={styles.divider}>
