@@ -1,5 +1,84 @@
 .container {
-  font-size: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
   text-align: center;
-  padding: 2rem;
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ctaContainer {
+  margin-top: 3rem;
+}
+
+.ctaButton {
+  min-width: 180px;
+  padding: 12px 24px;
+  font-weight: 600;
+  text-transform: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.ctaButton_contained {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.3) !important;
+}
+
+.ctaButton_contained:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.4) !important;
+}
+
+.ctaButton_outlined {
+  border: 2px solid var(--primary-color) !important;
+  color: var(--primary-color) !important;
+  background: transparent !important;
+}
+
+.ctaButton_outlined:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+.browseLink {
+  font-size: 1rem;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary) !important;
+  transition: color 0.3s ease;
+}
+
+.browseLink:hover {
+  color: var(--primary-light) !important;
+  background: transparent !important;
+  text-decoration: none;
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  .ctaButton {
+    min-width: 160px;
+    padding: 10px 20px;
+  }
 }

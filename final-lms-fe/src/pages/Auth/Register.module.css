@@ -43,21 +43,23 @@
   text-align: center;
 }
 
-.rememberForgot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.termsContainer {
   margin: 0.5rem 0 1rem;
 }
 
-.forgotPassword {
+.termsText {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.termsText a {
   color: var(--primary);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-weight: 500;
   transition: color 0.2s;
 }
 
-.forgotPassword:hover {
+.termsText a:hover {
   color: var(--primary-light);
   text-decoration: underline;
 }
@@ -67,18 +69,6 @@
   justify-content: center;
   gap: 1.5rem;
   margin: 1.5rem 0;
-}
-
-.socialIcon {
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: transform 0.2s, color 0.2s;
-}
-
-.socialIcon:hover {
-  transform: translateY(-2px);
-  color: var(--primary);
 }
 
 .divider {
@@ -160,10 +150,6 @@
 
 :global .MuiCheckbox-colorPrimary.Mui-checked {
   color: var(--primary);
-}
-
-:global .MuiOutlinedInput-notchedOutline {
-  border-color: var(--input-border);
 }
 
 :global .MuiInputLabel-root {

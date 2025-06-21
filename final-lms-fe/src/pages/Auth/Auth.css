@@ -1,0 +1,66 @@
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #8b5cf6;
+  --background-dark: #0f172a;
+  --card-bg: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --input-bg: #2d3748;
+  --input-border: #4a5568;
+}
+
+.gradient-button {
+  background: linear-gradient(45deg, var(--primary), var(--primary-light)) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  transition: all 0.2s !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.gradient-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+}
+
+.gradient-button:active {
+  transform: translateY(0) !important;
+}
+
+.gradient-text {
+  background: linear-gradient(45deg, var(--primary), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.gradient-text:hover {
+  opacity: 0.9;
+}
+
+.google-icon {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  background: conic-gradient(
+    from -45deg,
+    #ea4335 110deg,
+    #4285f4 90deg 180deg,
+    #34a853 180deg 270deg,
+    #fbbc05 270deg
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.google-icon:hover {
+  transform: scale(1.1);
+}
