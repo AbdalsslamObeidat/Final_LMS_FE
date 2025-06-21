@@ -1,21 +1,30 @@
-import { Button, TextField, Typography, Paper, FormControlLabel, Checkbox, IconButton, InputAdornment } from '@mui/material';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from './Register.module.css';
-import './Auth.css';
-import { FaGoogle } from 'react-icons/fa';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  FormControlLabel,
+  Checkbox,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "./Register.module.css";
+import "./Auth.css";
+import { FaGoogle } from "react-icons/fa";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function Register() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ 
-    name: '', 
-    email: '', 
-    password: '', 
-    confirmPassword: '',
-    terms: false 
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    terms: false,
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -23,16 +32,16 @@ export default function Register() {
     const { name, value, type, checked } = e.target;
     setForm({
       ...form,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   };
 
   const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(prev => !prev);
+    setShowConfirmPassword((prev) => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -42,25 +51,29 @@ export default function Register() {
       return;
     }
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
-        credentials: 'include',
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+        }),
+        credentials: "include",
       });
       const data = await res.json();
       if (data.success) {
-        navigate('/dashboard');
+        navigate("/dashboard");
       } else {
-        setError(data.message || 'Registration failed');
+        setError(data.message || "Registration failed");
       }
     } catch (err) {
-      setError('Network error');
+      setError("Network error");
     }
   };
 
   const loginWithGoogle = () => {
-    window.location.href = '/api/auth/google';
+    window.location.href = "/api/auth/google";
   };
 
   return (
@@ -72,7 +85,7 @@ export default function Register() {
         <Typography className={styles.subtitle}>
           Just some details to get you in!
         </Typography>
-        
+
         <TextField
           label="Full Name"
           name="name"
@@ -81,7 +94,7 @@ export default function Register() {
           onChange={handleChange}
           variant="outlined"
         />
-        
+
         <TextField
           label="Email"
           name="email"
@@ -91,10 +104,10 @@ export default function Register() {
           onChange={handleChange}
           variant="outlined"
         />
-        
+
         <TextField
           label="Password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           name="password"
           fullWidth
           margin="normal"
@@ -110,10 +123,10 @@ export default function Register() {
             ),
           }}
         />
-        
+
         <TextField
           label="Confirm Password"
-          type={showConfirmPassword ? 'text' : 'password'}
+          type={showConfirmPassword ? "text" : "password"}
           name="confirmPassword"
           fullWidth
           margin="normal"
@@ -122,60 +135,70 @@ export default function Register() {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={toggleConfirmPasswordVisibility} edge="end">
+                <IconButton
+                  onClick={toggleConfirmPasswordVisibility}
+                  edge="end"
+                >
                   {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             ),
           }}
         />
-        
+
         <div className={styles.termsContainer}>
           <FormControlLabel
             control={
-              <Checkbox 
-                name="terms" 
+              <Checkbox
+                name="terms"
                 checked={form.terms}
                 onChange={handleChange}
-                sx={{ 
-                  color: '#6366f1',
-                  '&.Mui-checked': { 
-                    color: '#6366f1' 
-                  } 
-                }} 
+                sx={{
+                  color: "#6366f1",
+                  "&.Mui-checked": {
+                    color: "#6366f1",
+                  },
+                }}
               />
             }
             label={
               <span className={styles.termsText}>
-                I agree to the <Link to="/terms" className="gradient-text">Terms and Conditions</Link>
+                I agree to the{" "}
+                <Link to="/terms" className="gradient-text">
+                  Terms and Conditions
+                </Link>
               </span>
             }
           />
         </div>
-        
+
         {error && <div className={styles.error}>{error}</div>}
-        
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit} 
-          fullWidth 
+
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          fullWidth
           className="gradient-button"
           sx={{ mt: 2 }}
           disabled={!form.terms}
         >
           SignUp
         </Button>
-        
+
         <div className={styles.divider}>
           <span>Or</span>
         </div>
-        
+
         <div className={styles.socialLogin}>
-          <FaGoogle className="google-icon" onClick={loginWithGoogle} />
+          <FaGoogle
+            className="google-icon"
+            onClick={loginWithGoogle}
+            style={{ color: "#4285F4", fontSize: "32px", cursor: "pointer" }}
+          />
         </div>
-        
+
         <Typography align="center" sx={{ mt: 2 }}>
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className="gradient-text">
             Login
           </Link>

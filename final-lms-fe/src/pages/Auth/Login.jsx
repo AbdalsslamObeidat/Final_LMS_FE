@@ -1,15 +1,22 @@
-import { Button, TextField, Typography, Paper, IconButton, InputAdornment } from '@mui/material';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from './Login.module.css';
-import './Auth.css';
-import { FaGoogle } from 'react-icons/fa';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "./Login.module.css";
+import "./Auth.css";
+import { FaGoogle } from "react-icons/fa";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -22,25 +29,29 @@ export default function Login() {
 
   const loginLocal = async () => {
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
-        credentials: 'include',
+        credentials: "include",
       });
+
       const data = await res.json();
-      if (data.success) {
-        navigate('/dashboard');
+
+      if (data.success && data.accessToken) {
+        localStorage.setItem("token", data.accessToken);
+        navigate("/dashboard", { replace: true });
+
       } else {
-        setError(data.message || 'Login failed');
+        setError(data.message || "Login failed");
       }
     } catch (err) {
-      setError('Network error');
+      setError("Network error");
     }
   };
 
   const loginWithGoogle = () => {
-    window.location.href = '/api/auth/google';
+    window.location.href = "/api/auth/google";
   };
 
   return (
@@ -49,9 +60,7 @@ export default function Login() {
         <Typography variant="h4" className={styles.title}>
           Login
         </Typography>
-        <Typography className={styles.subtitle}>
-          Glad you're back!
-        </Typography>
+        <Typography className={styles.subtitle}>Glad you're back!</Typography>
 
         <TextField
           label="Email"
@@ -65,7 +74,7 @@ export default function Login() {
 
         <TextField
           label="Password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           name="password"
           fullWidth
           margin="normal"
@@ -99,11 +108,15 @@ export default function Login() {
         </div>
 
         <div className={styles.socialLogin}>
-          <FaGoogle className="google-icon" onClick={loginWithGoogle} />
+          <FaGoogle
+            className="google-icon"
+            onClick={loginWithGoogle}
+            style={{ color: "#4285F4", fontSize: "32px", cursor: "pointer" }}
+          />
         </div>
 
         <Typography align="center" sx={{ mt: 2 }}>
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/register" className="gradient-text">
             Register
           </Link>
