@@ -40,8 +40,7 @@ export default function Login() {
 
       if (data.success && data.accessToken) {
         localStorage.setItem("token", data.accessToken);
-        navigate("/dashboard", { replace: true });
-
+        navigate("/dashboard", { state: { token: data.accessToken } });
       } else {
         setError(data.message || "Login failed");
       }
