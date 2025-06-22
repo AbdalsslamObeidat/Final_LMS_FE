@@ -1,7 +1,7 @@
 :root {
-  --primary: #6366f1;
+  --primary: #1114df;
   --primary-dark: #4f46e5;
-  --primary-light: #8b5cf6;
+  --primary-light: #b41fd9;
   --background-dark: #0f172a;
   --card-bg: #1e293b;
   --text-primary: #f8fafc;
@@ -11,7 +11,7 @@
 }
 
 .gradient-button {
-  background: linear-gradient(45deg, var(--primary), var(--primary-light)) !important;
+background: linear-gradient(90deg,rgba(85, 129, 194, 1) 20%, rgba(139, 10, 168, 1) 85%) !important;
   color: white !important;
   font-weight: 600 !important;
   text-transform: none !important;
@@ -32,7 +32,7 @@
 }
 
 .gradient-text {
-  background: linear-gradient(45deg, var(--primary), var(--primary-light));
+  background: linear-gradient(45deg, rgba(85, 129, 194, 1) 20%, rgba(139, 10, 168, 1) 85%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

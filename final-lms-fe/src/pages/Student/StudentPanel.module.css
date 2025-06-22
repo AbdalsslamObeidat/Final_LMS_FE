@@ -1,0 +1,131 @@
+/* Container */
+.container {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(45deg, rgba(85, 129, 194, 1) 20%, rgba(139, 10, 168, 1) 85%);
+  color: white;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  background-color: #0f172a;
+  padding: 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3b82f6;
+  line-height: 1.2;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: #94a3b8;
+}
+
+.navItem.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.navIcon {
+  height: 0.75rem;
+  width: 0.75rem;
+  background-color: currentColor;
+  border-radius: 9999px;
+}
+
+/* Main Content */
+.mainContent {
+  margin-left: 16rem;
+  flex: 1;
+  padding: 1rem;
+  background-color: #0f172a;
+}
+
+/* Reusable Card */
+.card {
+  background-color: #1e293b;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Layout Grids */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.learningGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .statsGrid,
+  .learningGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mainContent {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .nav {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .navItem {
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
