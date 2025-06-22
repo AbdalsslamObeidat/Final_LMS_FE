@@ -27,27 +27,36 @@ export default function Login() {
     setShowPassword((prev) => !prev);
   };
 
-  const loginLocal = async () => {
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-        credentials: "include",
-      });
+const loginLocal = async () => {
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+      credentials: "include",
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (data.success && data.accessToken) {
-        localStorage.setItem("token", data.accessToken);
-        navigate("/dashboard", { state: { token: data.accessToken } });
+    if (data.success && data.accessToken && data.role) {
+      localStorage.setItem("token", data.accessToken);
+      localStorage.setItem("role", data.role); // Store role
+
+      // Redirect based on role
+      if (data.role === "admin") {
+        navigate("/adminPanel", { state: { token: data.accessToken } });
+      } else if (data.role === "teacher") {
+        navigate("/instructorPanel", { state: { token: data.accessToken } });
       } else {
-        setError(data.message || "Login failed");
+        navigate("/studentPanel", { state: { token: data.accessToken } });
       }
-    } catch (err) {
-      setError("Network error");
+    } else {
+      setError(data.message || "Login failed");
     }
-  };
+  } catch (err) {
+    setError("Network error");
+  }
+};
 
   const loginWithGoogle = () => {
     window.location.href = "/api/auth/google";
