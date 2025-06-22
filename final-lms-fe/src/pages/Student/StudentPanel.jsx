@@ -5,6 +5,8 @@ import StatsCards from '../../components/StatsCards/StatsCards';
 import ContinueLearning from '../../components/ContinueLearning/ContinueLearning';
 import RecentActivity from '../../components/RecentActivity/RecentActivity';
 import styles from './StudentPanel.module.css';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // assuming React Router
 
 const StudentPanel = () => {
   const [activeMenuItem, setActiveMenuItem] = useState('Dashboard');
@@ -31,7 +33,17 @@ const StudentPanel = () => {
   const handleActivityClick = (activity) => {
     console.log('Activity clicked:', activity);
   };
+const navigate = useNavigate();
 
+const handleLogout = async () => {
+  try {
+    await axios.post('/logout', {}, { withCredentials: true }); // Include cookies
+    navigate('/login'); // Redirect after successful logout
+  } catch (error) {
+    console.error("Logout failed:", error);
+    alert("Logout failed. Please try again.");
+  }
+};
   const statsData = [
     { label: 'Enrolled Courses', value: '12', color: 'bg-blue-500' },
     { label: 'Completed', value: '8', color: 'bg-purple-500' },

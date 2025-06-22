@@ -29,11 +29,7 @@ const Header = ({ userName, onSearch, onProfileClick }) => {
             className={styles.searchInput}
           />
         </div>
-        
-        <button className={styles.notificationButton}>
-          <Bell size={20} />
-          <span className={styles.notificationBadge}>3</span>
-        </button>
+    
         
         <button 
           onClick={onProfileClick}

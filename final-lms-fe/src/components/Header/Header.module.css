@@ -64,35 +64,7 @@
   border-color: #3b82f6;
 }
 
-.notificationButton {
-  position: relative;
-  padding: 0.5rem;
-  color: #94a3b8;
-  background: none;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
 
-.notificationButton:hover {
-  color: white;
-}
-
-.notificationBadge {
-  position: absolute;
-  top: -0.25rem;
-  right: -0.25rem;
-  background-color: #ef4444;
-  color: white;
-  font-size: 0.75rem;
-  border-radius: 50%;
-  height: 1.25rem;
-  width: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .profileButton {
   display: flex;
