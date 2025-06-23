@@ -3,36 +3,64 @@ import styles from './ContinueLearning.module.css';
 
 const CourseCard = ({
   course,
-  onContinue = () => {}
+  onContinue = () => {},
+  instructors = [],
+  categories = []
 }) => {
+  // Safely handle color property
   const getColorClass = (color) => {
-    if (color.includes('blue')) return 'blue';
-    if (color.includes('purple')) return 'purple';
-    if (color.includes('green')) return 'green';
-    return 'blue';
+    if (typeof color === 'string') {
+      if (color.includes('blue')) return 'blue';
+      if (color.includes('purple')) return 'purple';
+      if (color.includes('green')) return 'green';
+    }
+    return 'blue'; // default
   };
 
-  const colorClass = getColorClass(course.color);
+  const colorClass = getColorClass(course.color || '');
+
+  // Find instructor name by id (support id or _id)
+  const instructorObj = instructors.find(
+    (inst) =>
+      String(inst.id ?? inst._id) === String(course.instructor_id ?? course.instructor?._id ?? course.instructor?.id)
+  );
+  const instructorName = instructorObj ? instructorObj.name : 'Unknown Instructor';
+
+  // Find category name by id
+  const categoryObj = categories.find(
+    (cat) => String(cat.id) === String(course.category_id)
+  );
+  const categoryName = categoryObj ? categoryObj.name : 'Unknown Category';
 
   return (
     <div className={styles.courseCard}>
-      <div className={`${styles.courseHeader} ${styles[colorClass]}`}></div>
+      <div className={`${styles.courseHeader} ${styles[colorClass]}`}>
+        {course.thumbnail_url && (
+          <img
+            src={course.thumbnail_url}
+            alt={course.title || 'Course Thumbnail'}
+            className={styles.courseThumbnail}
+          />
+        )}
+      </div>
       <div className={styles.courseContent}>
-        <h4 className={styles.courseTitle}>{course.title}</h4>
-        <p className={styles.courseInstructor}>{course.instructor}</p>
-        
+        <h4 className={styles.courseTitle}>{course.title || 'Untitled Course'}</h4>
+        <p className={styles.courseDescription}>{course.description || 'No description available.'}</p>
+        <p className={styles.courseInstructor}><strong>Instructor:</strong> {instructorName}</p>
+        <p className={styles.courseCategory}><strong>Category:</strong> {categoryName}</p>
         <div className={styles.progressSection}>
           <div className={styles.progressHeader}>
-            <span className={styles.progressText}>{course.progress}% Complete</span>
+            <span className={styles.progressText}>
+              {typeof course.progress === 'number' ? course.progress : 0}% Complete
+            </span>
           </div>
           <div className={styles.progressBar}>
             <div 
               className={`${styles.progressFill} ${styles[colorClass]}`}
-              style={{ width: `${course.progress}%` }}
+              style={{ width: `${typeof course.progress === 'number' ? course.progress : 0}%` }}
             ></div>
           </div>
         </div>
-        
         <button 
           onClick={() => onContinue(course)}
           className={`${styles.continueButton} ${styles[colorClass]}`}
@@ -46,47 +74,32 @@ const CourseCard = ({
 
 const ContinueLearning = ({
   title = 'Continue Learning',
-  courses = [
-    {
-      id: 1,
-      title: 'React Development',
-      instructor: 'Fatima Al-Zahra',
-      progress: 75,
-      color: 'from-blue-500 to-blue-600',
-      progressColor: 'bg-blue-500'
-    },
-    {
-      id: 2,
-      title: 'JavaScript ES6+',
-      instructor: 'Omar Hassan',
-      progress: 45,
-      color: 'from-purple-500 to-purple-600',
-      progressColor: 'bg-purple-500'
-    },
-    {
-      id: 3,
-      title: 'UI/UX Design',
-      instructor: 'Layla Mansour',
-      progress: 90,
-      color: 'from-green-500 to-green-600',
-      progressColor: 'bg-green-500'
-    }
-  ],
+  courses = [],
+  instructors = [],
+  categories = [],
   onContinueCourse = () => {},
   className = ''
 }) => {
+  // Defensive: always use an array
+  const safeCourses = Array.isArray(courses) ? courses : [];
+
   return (
     <div className={`${styles.container} ${className}`}>
       <h3 className={styles.title}>{title}</h3>
-      
       <div className={styles.coursesGrid}>
-        {courses.map((course) => (
-          <CourseCard 
-            key={course.id}
-            course={course}
-            onContinue={onContinueCourse}
-          />
-        ))}
+        {safeCourses.length === 0 ? (
+          <div className={styles.noCourses}>No courses to display.</div>
+        ) : (
+          safeCourses.map((course) => (
+            <CourseCard 
+              key={course.id || course._id || course.title}
+              course={course}
+              instructors={instructors}
+              categories={categories}
+              onContinue={onContinueCourse}
+            />
+          ))
+        )}
       </div>
     </div>
   );
