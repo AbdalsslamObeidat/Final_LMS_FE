@@ -1,36 +1,35 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from './ContinueLearning.module.css';
 
 const CourseCard = ({
   course,
   onContinue = () => {},
-  instructors = [],
-  categories = []
+  // Remove instructors and categories props
+  // instructors = [],
+  // categories = []
 }) => {
-  // Safely handle color property
+  const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const descRef = useRef(null);
+
+  // Check if description overflows 2 lines
+  useEffect(() => {
+    const el = descRef.current;
+    if (el) {
+      setIsOverflowing(el.scrollHeight > el.clientHeight + 1);
+    }
+  }, [course.description]);
+
+  // Color logic (optional, keep as before)
   const getColorClass = (color) => {
     if (typeof color === 'string') {
       if (color.includes('blue')) return 'blue';
       if (color.includes('purple')) return 'purple';
       if (color.includes('green')) return 'green';
     }
-    return 'blue'; // default
+    return 'blue';
   };
-
   const colorClass = getColorClass(course.color || '');
-
-  // Find instructor name by id (support id or _id)
-  const instructorObj = instructors.find(
-    (inst) =>
-      String(inst.id ?? inst._id) === String(course.instructor_id ?? course.instructor?._id ?? course.instructor?.id)
-  );
-  const instructorName = instructorObj ? instructorObj.name : 'Unknown Instructor';
-
-  // Find category name by id
-  const categoryObj = categories.find(
-    (cat) => String(cat.id) === String(course.category_id)
-  );
-  const categoryName = categoryObj ? categoryObj.name : 'Unknown Category';
 
   return (
     <div className={styles.courseCard}>
@@ -45,9 +44,26 @@ const CourseCard = ({
       </div>
       <div className={styles.courseContent}>
         <h4 className={styles.courseTitle}>{course.title || 'Untitled Course'}</h4>
-        <p className={styles.courseDescription}>{course.description || 'No description available.'}</p>
-        <p className={styles.courseInstructor}><strong>Instructor:</strong> {instructorName}</p>
-        <p className={styles.courseCategory}><strong>Category:</strong> {categoryName}</p>
+        <div className={styles.courseDescription}>
+          <span
+            ref={descRef}
+            className={!expanded ? styles.truncateDescription : undefined}
+          >
+            {course.description || 'No description available.'}
+          </span>
+          {isOverflowing && (
+            <button
+              className={styles.showMoreBtn}
+              onClick={() => setExpanded((prev) => !prev)}
+              type="button"
+            >
+              {expanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
+        {/* Remove instructor and category display */}
+        {/* <p className={styles.courseInstructor}><strong>Instructor:</strong> {instructorName}</p>
+        <p className={styles.courseCategory}><strong>Category:</strong> {categoryName}</p> */}
         <div className={styles.progressSection}>
           <div className={styles.progressHeader}>
             <span className={styles.progressText}>
@@ -75,12 +91,12 @@ const CourseCard = ({
 const ContinueLearning = ({
   title = 'Continue Learning',
   courses = [],
-  instructors = [],
-  categories = [],
+  // Remove instructors and categories props
+  // instructors = [],
+  // categories = [],
   onContinueCourse = () => {},
   className = ''
 }) => {
-  // Defensive: always use an array
   const safeCourses = Array.isArray(courses) ? courses : [];
 
   return (
@@ -94,8 +110,9 @@ const ContinueLearning = ({
             <CourseCard 
               key={course.id || course._id || course.title}
               course={course}
-              instructors={instructors}
-              categories={categories}
+              // Remove instructors and categories props
+              // instructors={instructors}
+              // categories={categories}
               onContinue={onContinueCourse}
             />
           ))
