@@ -19,7 +19,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/adminPanel" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPanel /></ProtectedRoute>} />
-        <Route path="/instructorPanel" element={<ProtectedRoute allowedRoles={["teacher"]}><InstructorPanel /></ProtectedRoute>} />
+        <Route path="/instructorPanel" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorPanel /></ProtectedRoute>} />
         <Route path="/studentPanel" element={<ProtectedRoute allowedRoles={["student"]}><StudentPanel /></ProtectedRoute>} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
       </Routes>

@@ -6,11 +6,12 @@ import ContinueLearning from '../../components/ContinueLearning/ContinueLearning
 import RecentActivity from '../../components/RecentActivity/RecentActivity';
 import styles from './StudentPanel.module.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // assuming React Router
+import { useNavigate } from 'react-router-dom';
 
 const StudentPanel = () => {
   const [activeMenuItem, setActiveMenuItem] = useState('Dashboard');
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleMenuItemClick = (item) => {
     setActiveMenuItem(item);
@@ -33,17 +34,21 @@ const StudentPanel = () => {
   const handleActivityClick = (activity) => {
     console.log('Activity clicked:', activity);
   };
-const navigate = useNavigate();
 
-const handleLogout = async () => {
+ const handleLogout = async () => {
   try {
-    await axios.post('/logout', {}, { withCredentials: true }); // Include cookies
-    navigate('/login'); // Redirect after successful logout
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    await axios.post('/api/auth/logout', {}, { withCredentials: true }); // <-- FIXED PATH
+    navigate('/login');
   } catch (error) {
     console.error("Logout failed:", error);
-    alert("Logout failed. Please try again.");
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    navigate('/login');
   }
 };
+
   const statsData = [
     { label: 'Enrolled Courses', value: '12', color: 'bg-blue-500' },
     { label: 'Completed', value: '8', color: 'bg-purple-500' },
@@ -120,16 +125,15 @@ const handleLogout = async () => {
 
   return (
     <div className={styles.container}>
-      {/* Fixed Sidebar */}
       <div className={styles.sidebar}>
         <Sidebar 
           activeItem={activeMenuItem}
           onItemClick={handleMenuItemClick}
+          onLogout={handleLogout}
           menuItems={menuItems}
         />
       </div>
 
-      {/* Main Content */}
       <div className={styles.mainContent} style={{ marginLeft: '16rem' }}>
         <Header 
           userName="Ahmed"

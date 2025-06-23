@@ -12,6 +12,7 @@ import styles from "./Login.module.css";
 import "./Auth.css";
 import { FaGoogle } from "react-icons/fa";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { parseJwt } from '../../utils/jwt'; // adjust the path as needed
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,36 +28,47 @@ export default function Login() {
     setShowPassword((prev) => !prev);
   };
 
-const loginLocal = async () => {
-  try {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-      credentials: "include",
-    });
+  const loginLocal = async () => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+        credentials: "include",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.success && data.accessToken && data.role) {
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("role", data.role); // Store role
+      if (data.success && data.accessToken) {
+        const decoded = parseJwt(data.accessToken);
+        const role = decoded?.role || data.role;
 
-      // Redirect based on role
-      if (data.role === "admin") {
-        navigate("/adminPanel", { state: { token: data.accessToken } });
-      } else if (data.role === "teacher") {
-        navigate("/instructorPanel", { state: { token: data.accessToken } });
+        if (decoded) {
+          localStorage.setItem("token", data.accessToken);
+          localStorage.setItem("role", role);
+
+          // Redirect based on role (case-insensitive)
+          const roleLower = role?.toLowerCase();
+          if (roleLower === "admin") {
+            navigate("/adminPanel", { state: { token: data.accessToken } });
+          } else if (roleLower === "instructor") {
+            navigate("/instructorPanel", { state: { token: data.accessToken } });
+          } else if (roleLower === "student") {
+            navigate("/studentPanel", { state: { token: data.accessToken } });
+          } else {
+            setError("Unknown role: " + role);
+            console.log("Unknown role encountered:", role);
+          }
+        } else {
+          setError("Invalid token");
+        }
       } else {
-        navigate("/studentPanel", { state: { token: data.accessToken } });
+        setError(data.message || "Login failed");
       }
-    } else {
-      setError(data.message || "Login failed");
+    } catch (err) {
+      setError("Network error");
     }
-  } catch (err) {
-    setError("Network error");
-  }
-};
+  };
 
   const loginWithGoogle = () => {
     window.location.href = "/api/auth/google";

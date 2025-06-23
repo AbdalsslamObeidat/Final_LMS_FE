@@ -7,9 +7,16 @@ import {
 } from 'lucide-react';
 import styles from './RecentActivity.module.css';
 
+const ICONS = {
+  quiz: CheckCircle,
+  assignment: FileText,
+  enrollment: BookOpen,
+  grade: GraduationCap
+};
+
 const ActivityItem = ({ activity, onClick = () => {} }) => {
-  const Icon = activity.icon;
-  
+  const Icon = ICONS[activity.type] || CheckCircle;
+
   return (
     <div 
       className={styles.activityItem}
@@ -35,32 +42,28 @@ const RecentActivity = ({
       type: 'quiz',
       title: 'Quiz completed',
       subtitle: 'React Fundamentals - Chapter 3',
-      time: '2 hours ago',
-      icon: CheckCircle
+      time: '2 hours ago'
     },
     {
       id: 2,
       type: 'assignment',
       title: 'Assignment submitted',
       subtitle: 'JavaScript Project - Todo App',
-      time: '1 day ago',
-      icon: FileText
+      time: '1 day ago'
     },
     {
       id: 3,
       type: 'enrollment',
       title: 'New course enrolled',
       subtitle: 'Python for Data Science',
-      time: '3 days ago',
-      icon: BookOpen
+      time: '3 days ago'
     },
     {
       id: 4,
       type: 'grade',
       title: 'Grade received',
       subtitle: 'UI Design Project - Grade: A',
-      time: '1 week ago',
-      icon: GraduationCap
+      time: '1 week ago'
     }
   ],
   onActivityClick = () => {},

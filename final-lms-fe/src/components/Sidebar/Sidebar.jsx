@@ -9,13 +9,19 @@ import {
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
-const Sidebar = ({ activeItem, onItemClick }) => {
+const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
   const menuItems = [
     { name: 'Dashboard', icon: BarChart3 },
     { name: 'Courses', icon: BookOpen },
     { name: 'Assignments', icon: FileText },
     { name: 'Quizzes', icon: GraduationCap },
   ];
+
+  const handleLogoutClick = () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
 
   return (
     <div className={styles.sidebar}>
@@ -48,7 +54,10 @@ const Sidebar = ({ activeItem, onItemClick }) => {
 
       {/* Footer */}
       <div className={styles.footer}>
-        <button className={styles.logoutButton}>
+        <button 
+          className={styles.logoutButton}
+          onClick={handleLogoutClick}
+        >
           <LogOut size={20} />
           <span>Logout</span>
         </button>
