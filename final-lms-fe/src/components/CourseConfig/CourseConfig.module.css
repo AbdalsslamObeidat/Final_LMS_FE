@@ -1,0 +1,11 @@
+/* CourseConfig.module.css */
+
+.configContainer {
+  background: #1e293b;
+  border-radius: 14px;
+  padding: 2rem;
+  margin: 1.5rem auto;
+  max-width: 600px;
+  box-shadow: 0 4px 24px rgba(36,40,80,0.13);
+  color: #e2e8f0;
+}
