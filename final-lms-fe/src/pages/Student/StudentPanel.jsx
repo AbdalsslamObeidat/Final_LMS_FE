@@ -6,6 +6,7 @@ import Sidebar from '../../components/Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
 import StatsCards from '../../components/StatsCards/StatsCards';
 import ContinueLearning from '../../components/ContinueLearning/ContinueLearning';
+import AllCoursesViewer from '../../components/AllCoursesViewer/AllCoursesViewer';
 import styles from './StudentPanel.module.css';
 import { useAuth } from '../../utils/AuthContext';
 import {
@@ -128,18 +129,10 @@ const StudentPanel = () => {
     completedCourses: enrollments.filter((e) => e.progress === 100).length,
   };
 
-  return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar
-        menuItems={studentMenu}
-        subtitle="Student Panel"
-        activeItem={activeMenuItem}
-        onItemClick={handleMenuItemClick}
-        onLogout={handleLogout}
-        logoutIcon={LogOut}
-      />
-      <Container maxWidth="lg" sx={{ mt: 4, flex: 1, px: 3 }}>
-        {activeMenuItem === 'Dashboard' && (
+  const renderActiveComponent = () => {
+    switch (activeMenuItem) {
+      case 'Dashboard':
+        return (
           <>
             <Header
               userName={userData?.name || 'Student'}
@@ -155,25 +148,40 @@ const StudentPanel = () => {
               />
             </div>
           </>
-        )}
-        {activeMenuItem === 'My Courses' && (
-          <div style={{ marginTop: 32 }}>
-            <h2>Courses</h2>
-            <p>Your enrolled courses will be displayed here.</p>
-          </div>
-        )}
-        {activeMenuItem === 'Assignments' && (
+        );
+      case 'All Courses':
+        return <AllCoursesViewer />;
+      case 'Assignments':
+        return (
           <div style={{ marginTop: 32 }}>
             <h2>Assignments</h2>
             <p>Your assignments will be displayed here.</p>
           </div>
-        )}
-        {activeMenuItem === 'Quizzes' && (
+        );
+      case 'Quizzes':
+        return (
           <div style={{ marginTop: 32 }}>
             <h2>Quizzes</h2>
             <p>Your quizzes will be displayed here.</p>
           </div>
-        )}
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar
+        menuItems={studentMenu}
+        subtitle="Student Panel"
+        activeItem={activeMenuItem}
+        onItemClick={setActiveMenuItem}
+        onLogout={handleLogout}
+        logoutIcon={LogOut}
+      />
+      <Container maxWidth="lg" sx={{ mt: 4, flex: 1, px: 3 }}>
+        {renderActiveComponent()}
       </Container>
     </div>
   );
