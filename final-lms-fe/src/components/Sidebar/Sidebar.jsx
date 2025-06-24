@@ -1,25 +1,24 @@
 // Sidebar.jsx
 import React from 'react';
-import {
-  BookOpen,
-  GraduationCap,
-  BarChart3,
-  FileText,
-  LogOut,
-} from 'lucide-react';
 import styles from './Sidebar.module.css';
 
-const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
-  const menuItems = [
-    { name: 'Dashboard', icon: BarChart3 },
-    { name: 'Courses', icon: BookOpen },
-    { name: 'Assignments', icon: FileText },
-    { name: 'Quizzes', icon: GraduationCap },
-  ];
-
-  const handleLogoutClick = () => {
-    if (onLogout) {
-      onLogout();
+const Sidebar = ({ activeItem, onItemClick, onLogout, menuItems, subtitle = 'Student Panel', logoutIcon: LogoutIcon }) => {
+  const handleLogoutClick = async () => {
+    try {
+      if (onLogout) {
+        await onLogout();
+      } else {
+        // Fallback in case onLogout is not provided
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still try to redirect even if there's an error
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      window.location.href = '/login';
     }
   };
 
@@ -28,7 +27,7 @@ const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
       {/* Logo Section */}
       <div className={styles.logo}>
         <h2 className={styles.logoText}>EdyMe</h2>
-        <p className={styles.logoSubtitle}>Student Panel</p>
+        <p className={styles.logoSubtitle}>{subtitle}</p>
       </div>
 
       {/* Menu Items */}
@@ -38,9 +37,9 @@ const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
           const isActive = activeItem === item.name;
 
           const handleClick = () => {
-            if (item.name === 'Dashboard') {
-              window.location.href = '/studentPanel';
-            } else {
+            if (item.onClick) {
+              item.onClick();
+            } else if (onItemClick) {
               onItemClick(item.name);
             }
           };
@@ -53,7 +52,7 @@ const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
                 isActive ? styles.menuItemActive : styles.menuItemInactive
               }`}
             >
-              <Icon size={20} />
+              {Icon && <Icon size={20} />}
               <span>{item.name}</span>
             </button>
           );
@@ -66,7 +65,8 @@ const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
           className={styles.logoutButton}
           onClick={handleLogoutClick}
         >
-          <LogOut size={20} />
+          {/* Render logout icon if provided */}
+          {LogoutIcon && <LogoutIcon size={20} style={{ marginRight: 8 }} />}
           <span>Logout</span>
         </button>
       </div>

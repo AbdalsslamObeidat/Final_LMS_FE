@@ -13,7 +13,7 @@ import clStyles from '../ContinueLearning/ContinueLearning.module.css';
  * Handles loading, error, and reload logic.
  * Accepts onEdit and onDelete as props.
  */
-const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete }, ref) {
+const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onConfigure }, ref) {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -72,7 +72,12 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete }, re
   if (error) return (<div>Error loading courses.</div>);
 
   return (
-    <Paper sx={{ p: 2 }}>
+    <Paper sx={{
+      backgroundColor: '#121212',
+      '&.MuiPaper-root': {
+        backgroundImage: 'none !important',
+      }
+    }}>
       <div className={clStyles.coursesGrid}>
         {courses.map((course) => {
           const isExpanded = expanded[course.id] || false;
@@ -113,25 +118,36 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete }, re
                   })()}</span></span>
                   <span style={{ marginLeft: '1.2rem' }}><strong>Created:</strong> <span className={styles.dateValue}>{course.created_at ? new Date(course.created_at).toLocaleDateString('en-GB') : 'N/A'}</span></span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={() => onEdit(course)}
-                    style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
-                  >
-                    <EditIcon />
-                  </Button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
                   <Button
                     variant="outlined"
-                    color="error"
+                    color="secondary"
                     size="small"
-                    onClick={() => onDelete(course.id)}
+                    onClick={() => onConfigure(course)}
                     style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
                   >
-                    <DeleteIcon />
+                    Configure
                   </Button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => onEdit(course)}
+                      style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
+                    >
+                      <EditIcon />
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => onDelete(course.id)}
+                      style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
