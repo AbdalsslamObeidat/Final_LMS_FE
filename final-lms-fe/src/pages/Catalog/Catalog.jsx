@@ -1,6 +1,6 @@
 import { Container, Typography, Grid, Card, CardContent } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { fetchCourses } from '../../api/api';
+import { fetchCourses } from '../../api/authApi';
 
 export default function Catalog() {
   const [courses, setCourses] = useState([]);

@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Paper, Grid, Button, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { fetchCourses } from '../../api/api';
+import { fetchCourses } from '../../api/authApi';
 import { fetchCategories } from '../../api/categories';
 import { useAuth } from '../../utils/AuthContext';
 import styles from './CoursesViewer.module.css';
@@ -13,7 +13,7 @@ import clStyles from '../ContinueLearning/ContinueLearning.module.css';
  * Handles loading, error, and reload logic.
  * Accepts onEdit and onDelete as props.
  */
-export default function CoursesViewer({ onEdit, onDelete }) {
+const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete }, ref) {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -63,6 +63,10 @@ export default function CoursesViewer({ onEdit, onDelete }) {
     });
     setOverflowing(newOverflowing);
   }, [courses, expanded]);
+
+  useImperativeHandle(ref, () => ({
+    reloadCourses: loadCourses
+  }));
 
   if (loading) return (<div>Loading courses...</div>);
   if (error) return (<div>Error loading courses.</div>);
@@ -136,4 +140,6 @@ export default function CoursesViewer({ onEdit, onDelete }) {
       </div>
     </Paper>
   );
-}
+});
+
+export default CoursesViewer;

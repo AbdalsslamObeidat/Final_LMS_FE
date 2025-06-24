@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Container, Button } from '@mui/material';
 import CourseForm from '../../components/CourseForm/CourseForm';
 import CoursesViewer from '../../components/CoursesViwer/CoursesViewer.jsx';
@@ -7,6 +7,7 @@ import styles from './InstructorPanel.module.css';
 export default function InstructorPanel() {
   const [showForm, setShowForm] = useState(false);
   const [editCourse, setEditCourse] = useState(null);
+  const coursesViewerRef = useRef();
 
   const handleCreate = () => {
     setEditCourse(null);
@@ -17,12 +18,16 @@ export default function InstructorPanel() {
     setShowForm(true);
   };
   const handleDelete = (id) => {
-    // You may want to trigger a reload in CoursesViwer via a callback or context if needed
+    if (coursesViewerRef.current && coursesViewerRef.current.reloadCourses) {
+      coursesViewerRef.current.reloadCourses();
+    }
   };
   const handleFormSubmit = async (data) => {
     setShowForm(false);
     setEditCourse(null);
-    // You may want to trigger a reload in CoursesViwer via a callback or context if needed
+    if (coursesViewerRef.current && coursesViewerRef.current.reloadCourses) {
+      coursesViewerRef.current.reloadCourses();
+    }
   };
   const handleCancel = () => {
     setShowForm(false);
@@ -39,7 +44,7 @@ export default function InstructorPanel() {
           initialData={editCourse}
         />
       )}
-      <CoursesViewer onEdit={handleEdit} onDelete={handleDelete} />
+      <CoursesViewer ref={coursesViewerRef} onEdit={handleEdit} onDelete={handleDelete} />
     </Container>
   );
 }
