@@ -1,17 +1,35 @@
 // StatsCards.jsx
 import React from 'react';
-import { BookOpen, GraduationCap, Clock, TrendingUp } from 'lucide-react';
+import { BookOpen, GraduationCap, TrendingUp } from 'lucide-react';
 import styles from './StatsCards.module.css';
 
-const StatsCards = ({ stats, className = '' }) => {
+const StatsCards = ({ stats, userData, className = '' }) => {
+  // If userData is provided, use its values; otherwise fallback to stats prop
+  const cards = userData
+    ? [
+        {
+          label: 'Enrolled Courses',
+          value: userData.enrolledCourses ?? 0,
+          color: 'bg-blue-500',
+        },
+        {
+          label: 'Completed',
+          value: userData.completedCourses ?? 0,
+          color: 'bg-purple-500',
+        },
+        // Removed "Hours Learned"
+      ]
+    : stats?.filter(
+        (stat) => stat.label.toLowerCase() !== 'hours learned'
+      );
+
   const getIcon = (label) => {
     switch (label.toLowerCase()) {
       case 'enrolled courses':
         return BookOpen;
       case 'completed':
         return GraduationCap;
-      case 'hours learned':
-        return Clock;
+      // Removed 'hours learned'
       default:
         return TrendingUp;
     }
@@ -27,10 +45,10 @@ const StatsCards = ({ stats, className = '' }) => {
 
   return (
     <div className={`${styles.container} ${className}`}>
-      {stats.map((stat, index) => {
+      {cards.map((stat, index) => {
         const Icon = getIcon(stat.label);
         const iconColorClass = getIconColor(stat.color);
-        
+
         return (
           <div key={index} className={styles.card}>
             <div className={styles.cardContent}>

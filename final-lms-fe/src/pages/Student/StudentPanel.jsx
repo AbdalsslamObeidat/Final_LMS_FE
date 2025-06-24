@@ -3,7 +3,6 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import StatsCards from "../../components/StatsCards/StatsCards";
 import ContinueLearning from "../../components/ContinueLearning/ContinueLearning";
-import RecentActivity from "../../components/RecentActivity/RecentActivity";
 import styles from "./StudentPanel.module.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -11,31 +10,25 @@ import { useNavigate } from "react-router-dom";
 const StudentPanel = () => {
   const [activeMenuItem, setActiveMenuItem] = useState("Dashboard");
   const [searchQuery, setSearchQuery] = useState("");
+  const [enrollments, setEnrollments] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [instructors, setInstructors] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [userData, setUserData] = useState({});
   const navigate = useNavigate();
 
   const handleMenuItemClick = (item) => {
     setActiveMenuItem(item);
-    console.log("Navigate to:", item);
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    console.log("Search query:", query);
   };
 
   const handleProfileClick = () => {
-    console.log("Profile clicked");
+    // Profile click logic
   };
 
   const handleContinueCourse = (course) => {
-    console.log("Continue course:", course);
-  };
-
-  const handleActivityClick = (activity) => {
-    console.log("Activity clicked:", activity);
+    // Continue course logic
   };
 
   const handleLogout = async () => {
@@ -45,128 +38,114 @@ const StudentPanel = () => {
       await axios.post("/api/auth/logout", {}, { withCredentials: true });
       navigate("/login");
     } catch (error) {
-      console.error("Logout failed:", error);
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       navigate("/login");
     }
   };
 
-  const statsData = [
-    { label: "Enrolled Courses", value: "12", color: "bg-blue-500" },
-    { label: "Completed", value: "8", color: "bg-purple-500" },
-    { label: "Hours Learned", value: "156", color: "bg-blue-500" },
-  ];
-
-  // Fetch courses, instructors, and categories
+  // Fetch user data on mount
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUser = async () => {
       try {
-        const [coursesRes, usersRes, categoriesRes] = await Promise.all([
-          axios.get("/api/courses/getall"),
-          axios.get("/api/admin/users"),
-          axios.get("/api/categories/getall"),
-        ]);
-        setCourses(coursesRes.data.courses || []);
-        // Filter instructors by role
-        const allUsers = usersRes.data.users || [];
-        const instructorsOnly = allUsers.filter(
-          (user) => user.role === "instructor"
-        );
-        setInstructors(instructorsOnly);
-        setCategories(categoriesRes.data.categories || []);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setUserData({});
+          navigate("/login");
+          return;
+        }
+        const res = await axios.get("/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+        setUserData(res.data.user || {});
       } catch (error) {
-        console.error("Failed to fetch data:", error);
-        setCourses([]);
-        setInstructors([]);
-        setCategories([]);
+        setUserData({});
+        navigate("/login");
       }
     };
-    fetchData();
-  }, []);
+    fetchUser();
+  }, [navigate]);
 
-  const activitiesData = [
-    {
-      id: 1,
-      type: "quiz",
-      title: "Quiz completed",
-      subtitle: "React Fundamentals - Chapter 3",
-      time: "2 hours ago",
-      icon: "CheckCircle",
-      color: "text-blue-500 bg-blue-500/10",
-    },
-    {
-      id: 2,
-      type: "assignment",
-      title: "Assignment submitted",
-      subtitle: "JavaScript Project - Todo App",
-      time: "1 day ago",
-      icon: "FileText",
-      color: "text-purple-500 bg-purple-500/10",
-    },
-    {
-      id: 3,
-      type: "enrollment",
-      title: "New course enrolled",
-      subtitle: "Python for Data Science",
-      time: "3 days ago",
-      icon: "BookOpen",
-      color: "text-blue-500 bg-blue-500/10",
-    },
-    {
-      id: 4,
-      type: "grade",
-      title: "Grade received",
-      subtitle: "UI Design Project - Grade: A",
-      time: "1 week ago",
-      icon: "GraduationCap",
-      color: "text-purple-500 bg-purple-500/10",
-    },
-  ];
+  // Fetch enrollments and courses after userData.id is set
+useEffect(() => {
+  const fetchEnrollmentsAndCourses = async () => {
+    if (!userData.id) return;
+    try {
+      const token = localStorage.getItem("token");
+      const [enrollmentsRes, coursesRes] = await Promise.all([
+        axios.get(`/api/enrollments/user/${userData.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }),
+        axios.get("/api/courses/getall"),
+      ]);
+      // Handle enrollments as array or object
+      const enrollmentsData = Array.isArray(enrollmentsRes.data)
+        ? enrollmentsRes.data
+        : enrollmentsRes.data.enrollments || [];
+      setEnrollments(enrollmentsData);
+      setCourses(coursesRes.data.courses || []);
+    } catch (error) {
+      setEnrollments([]);
+      setCourses([]);
+    }
+  };
+  fetchEnrollmentsAndCourses();
+}, [userData.id]);
 
   const menuItems = ["Dashboard", "Courses", "Assignments", "Quizzes"];
+console.log("Enrollments:", enrollments);
+console.log("Courses:", courses);
+  // Prepare courses array for ContinueLearning from enrollments and courses
+  const coursesFromEnrollments = enrollments.map((enrollment) => {
+  const course = courses.find(
+    (c) => String(c.id) === String(enrollment.course_id) || String(c._id) === String(enrollment.course_id)
+  ) || {};
+  return {
+    ...course,
+    progress: enrollment.progress ?? 0,
+  };
+});
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.sidebar}>
-        <Sidebar
-          activeItem={activeMenuItem}
-          onItemClick={handleMenuItemClick}
-          onLogout={handleLogout}
-          menuItems={menuItems}
-        />
+  const userStats = {
+    enrolledCourses: enrollments.length,
+    completedCourses: enrollments.filter((e) => e.progress === 100).length,
+  };
+
+ return (
+  <div className={styles.container}>
+    <aside className={styles.sidebar}>
+      <Sidebar
+        activeItem={activeMenuItem}
+        onItemClick={handleMenuItemClick}
+        onLogout={handleLogout}
+        menuItems={menuItems}
+      />
+    </aside>
+
+    <main className={styles.mainContent}>
+      <Header
+        userName={userData.name || "Student"}
+        onSearch={handleSearch}
+        onProfileClick={handleProfileClick}
+        showNotifications={false}
+      />
+
+      <div className={styles.statsSection}>
+        <StatsCards userData={userStats} />
       </div>
 
-      <div className={styles.mainContent} style={{ marginLeft: "16rem" }}>
-        <Header
-          userName="Ahmed"
-          onSearch={handleSearch}
-          onProfileClick={handleProfileClick}
-          showNotifications={false}
+      <div className={styles.continueLearningSection}>
+        <ContinueLearning
+          courses={coursesFromEnrollments}
+          onContinueCourse={handleContinueCourse}
         />
-
-        <div className={styles.statsSection}>
-          <StatsCards stats={statsData} />
-        </div>
-
-        <div className={styles.continueLearningSection}>
-          <ContinueLearning
-            courses={courses}
-            instructors={instructors}
-            categories={categories}
-            onContinueCourse={handleContinueCourse}
-          />
-        </div>
-
-        <div className={styles.bottomSection}>
-          <RecentActivity
-            activities={activitiesData}
-            onActivityClick={handleActivityClick}
-          />
-        </div>
       </div>
-    </div>
-  );
+    </main>
+  </div>
+);
+
 };
 
 export default StudentPanel;

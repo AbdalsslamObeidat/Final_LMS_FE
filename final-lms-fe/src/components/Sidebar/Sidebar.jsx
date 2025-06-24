@@ -37,10 +37,18 @@ const Sidebar = ({ activeItem, onItemClick, onLogout }) => {
           const Icon = item.icon;
           const isActive = activeItem === item.name;
 
+          const handleClick = () => {
+            if (item.name === 'Dashboard') {
+              window.location.href = '/studentPanel';
+            } else {
+              onItemClick(item.name);
+            }
+          };
+
           return (
             <button
               key={item.name}
-              onClick={() => onItemClick(item.name)}
+              onClick={handleClick}
               className={`${styles.menuItem} ${
                 isActive ? styles.menuItemActive : styles.menuItemInactive
               }`}

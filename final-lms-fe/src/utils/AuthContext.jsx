@@ -9,8 +9,22 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/auth/me', { credentials: 'include' })
-      .then(res => res.json())
+    const token = localStorage.getItem('token');
+    fetch('/api/auth/me', {
+      credentials: 'include',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(async res => {
+        if (!res.ok) {
+          // Suppress 401 error log
+          if (res.status !== 401) {
+            const text = await res.text();
+            console.error('Auth check error:', res.status, text);
+          }
+          return { success: false };
+        }
+        return res.json();
+      })
       .then(data => {
         if (data.success) setUser(data.user);
       })
