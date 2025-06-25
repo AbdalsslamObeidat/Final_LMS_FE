@@ -17,6 +17,36 @@ import { useAuth } from '../../utils/AuthContext';
 import styles from './AllCoursesViewer.module.css';
 
 const AllCoursesViewer = () => {
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
+  const [showMoreVisible, setShowMoreVisible] = useState({});
+  const descriptionRefs = React.useRef({});
+
+  // Toggle expanded/collapsed state for a course description
+  const handleToggleDescription = (courseId) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [courseId]: !prev[courseId]
+    }));
+  };
+
+  // Detect if description overflows two lines for each course
+  useEffect(() => {
+    const newShowMoreVisible = {};
+    Object.keys(descriptionRefs.current).forEach((courseId) => {
+      const el = descriptionRefs.current[courseId];
+      if (el) {
+        // Check if content exceeds two lines
+        const lineHeight = parseFloat(window.getComputedStyle(el).lineHeight);
+        const maxHeight = lineHeight * 2 + 1; // +1 for rounding issues
+        if (el.scrollHeight > maxHeight) {
+          newShowMoreVisible[courseId] = true;
+        } else {
+          newShowMoreVisible[courseId] = false;
+        }
+      }
+    });
+    setShowMoreVisible(newShowMoreVisible);
+  }, [courses, expandedDescriptions]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState({});
@@ -138,24 +168,36 @@ const AllCoursesViewer = () => {
                   <Typography gutterBottom variant="h5" component="div">
                     {course.title || 'Untitled Course'}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" className={styles.courseDescription}>
-                    {course.description || 'No description available.'}
-                  </Typography>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'space-between', padding: '8px 16px 16px' }}>
-                  <Button 
-                    size="small" 
-                    color="primary"
-                    variant="outlined"
-                    onClick={() => handleViewCourse(course.id || course._id)}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: 'rgba(99, 102, 241, 0.08)'
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    className={
+                      expandedDescriptions[course.id || course._id]
+                        ? undefined
+                        : styles.courseDescription
+                    }
+                    style={expandedDescriptions[course.id || course._id] ? { overflow: 'visible', display: 'block', WebkitLineClamp: 'unset', WebkitBoxOrient: 'unset', minHeight: 0 } : {}}
+                    ref={el => {
+                      if (el) {
+                        descriptionRefs.current[course.id || course._id] = el;
                       }
                     }}
                   >
-                    View Course
-                  </Button>
+                    {course.description || 'No description available.'}
+                  </Typography>
+                  {showMoreVisible[course.id || course._id] && (
+                    <Button
+                      size="small"
+                      color="secondary"
+                      sx={{ marginLeft: 0, marginTop: '4px', textTransform: 'none' }}
+                      onClick={() => handleToggleDescription(course.id || course._id)}
+                    >
+                      {expandedDescriptions[course.id || course._id] ? 'Show Less' : 'Show More'}
+                    </Button>
+                  )}
+                </CardContent>
+                <CardActions sx={{ justifyContent: 'space-between', padding: '8px 16px 16px' }}>
+                  
                   <Button
                     size="small"
                     variant="contained"

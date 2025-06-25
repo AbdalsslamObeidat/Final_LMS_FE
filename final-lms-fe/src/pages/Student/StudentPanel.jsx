@@ -60,7 +60,11 @@ const StudentPanel = () => {
   };
 
   const handleContinueCourse = (course) => {
-    // Continue course logic
+    // Navigate to ViewCourse with course data as state
+    navigate(
+      `/view-course/${course.id || course._id || course.title}`,
+      { state: { course } }
+    );
   };
 
   // Fetch user data on mount
