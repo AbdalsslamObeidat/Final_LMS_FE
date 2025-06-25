@@ -1,13 +1,19 @@
 /* Sidebar.module.css */
 
 .sidebar {
-  width: 16rem;
+  width: 250px;
+  min-width: 250px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  left: 0;
   background-color: #1e293b;
   border-right: 1px solid #475569;
-  padding: 1.5rem;
+  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  overflow-y: auto;
+
 }
 
 .logo {
@@ -81,9 +87,8 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: none;
   border: none;
-  border-radius: 0.5rem;
+ 
   transition: all 0.2s ease;
   cursor: pointer;
   background: linear-gradient(45deg, rgba(85, 129, 194, 1) 20%, rgba(139, 10, 168, 1) 85%);
@@ -91,7 +96,7 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 600;
-  text-decoration: none;
+  
 }
 
 .logoutButton:hover {

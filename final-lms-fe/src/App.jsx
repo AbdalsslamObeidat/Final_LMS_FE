@@ -9,6 +9,7 @@ import AdminPanel from "./pages/Admin/AdminPanel";
 import InstructorPanel from "./pages/Instructor/InstructorPanel";
 import StudentPanel from "./pages/Student/StudentPanel";
 import OAuthCallback from "./pages/Auth/OAuthCallback";
+import ViewCourse from "./components/ViewCourse/ViewCourse";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/adminPanel" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPanel /></ProtectedRoute>} />
         <Route path="/instructorPanel" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorPanel /></ProtectedRoute>} />
         <Route path="/studentPanel" element={<ProtectedRoute allowedRoles={["student"]}><StudentPanel /></ProtectedRoute>} />
+        <Route path="/view-course/:id" element={<ProtectedRoute allowedRoles={["student"]}><ViewCourse /></ProtectedRoute>} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
       </Routes>
     </Box>

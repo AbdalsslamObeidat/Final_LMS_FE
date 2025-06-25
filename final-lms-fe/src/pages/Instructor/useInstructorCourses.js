@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchCourses } from '../../api/api';
+import { fetchCourses } from '../../api/authApi';
 import { useAuth } from '../../utils/AuthContext';
 
 /**
