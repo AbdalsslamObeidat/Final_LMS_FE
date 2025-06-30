@@ -15,49 +15,245 @@ const fallbackImage = "https://img.freepik.com/free-vector/gradient-coding-illus
 const ViewCourse = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
+  const [enrollment, setEnrollment] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [modules, setModules] = useState([]);
   const [modulesLoading, setModulesLoading] = useState(true);
   const [modulesError, setModulesError] = useState(null);
   const [lessonsMap, setLessonsMap] = useState({}); // { moduleId: [lessons] }
   const [lessonsLoading, setLessonsLoading] = useState(false);
   const [lessonsError, setLessonsError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   // Expanded state hooks moved to top-level
   const [expandedModule, setExpandedModule] = React.useState(0); // index of expanded module
   const [expandedLesson, setExpandedLesson] = React.useState({}); // { moduleId: lessonIdx }
 
+  // Track checked lessons by lesson ID
+  const [checkedLessons, setCheckedLessons] = useState(new Set());
+
+  // Calculate percent complete
+  const totalLessons = Object.values(lessonsMap).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+  const percentComplete = totalLessons > 0 ? Math.round((checkedLessons.size / totalLessons) * 100) : 0;
+
+  // Handle checkbox change
+  const [saveStatus, setSaveStatus] = useState('');
+  const handleLessonCheck = (lessonId, checked) => {
+    setCheckedLessons(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(lessonId);
+      } else {
+        newSet.delete(lessonId);
+      }
+      // PATCH progress to backend ONLY if progress changed
+      if (enrollment && enrollment.id) {
+        const newPercent = totalLessons > 0 ? Math.round((newSet.size / totalLessons) * 100) : 0;
+        if (newPercent !== enrollment.progress) {
+          axios.patch(`/api/enrollments/progress/${enrollment.id}`, { progress: newPercent })
+            .then(() => {
+              setSaveStatus('Saved!');
+              setTimeout(() => setSaveStatus(''), 1200);
+              setRefreshEnrollment(true); // Only refresh enrollment after PATCH and only if progress changed
+            })
+            .catch(() => {
+              setSaveStatus('Error saving progress');
+              setTimeout(() => setSaveStatus(''), 2000);
+            });
+        }
+      }
+      return newSet;
+    });
+  };
+
+
+
+
   useEffect(() => {
     if (!id) {
-      setError("No course ID provided.");
+      setError("No ID provided.");
       setLoading(false);
       return;
     }
     setLoading(true);
-    axios.get(`/api/courses/get/${id}`)
-      .then(res => {
-        if (res.data && res.data.success && res.data.course) {
-          setCourse(res.data.course);
+    // Try to fetch enrollment by ID first
+    axios.get(`/api/enrollments/get/${id}`)
+      .then(async res => {
+        if (res.data && res.data.success && res.data.enrollment) {
+          const enrollment = res.data.enrollment;
+          setEnrollment(enrollment);
+          // Restore checked lessons from progress (if available and lessonsMap is loaded)
+          if (enrollment.progress && lessonsMap && Object.keys(lessonsMap).length > 0) {
+            const allLessonIds = Object.values(lessonsMap).flat().map(l => l.id);
+            const numToCheck = Math.round((enrollment.progress / 100) * allLessonIds.length);
+            setCheckedLessons(new Set(allLessonIds.slice(0, numToCheck)));
+          }
+          // Fetch course by course_id from enrollment
+          if (enrollment.course_id) {
+            try {
+              const courseRes = await axios.get(`/api/courses/get/${enrollment.course_id}`);
+              setCourse(courseRes.data.course || courseRes.data);
+            } catch {
+              setError("Failed to fetch course data.");
+            }
+          }
         } else {
-          setError("Course not found.");
+          // If not found as enrollment, treat as courseId and find enrollment by user+course
+          try {
+            const token = localStorage.getItem("token");
+            const me = await axios.get("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } });
+            const userId = me.data?.user?.id;
+            if (userId) {
+              const enrollmentsRes = await axios.get(`/api/enrollments/user/${userId}`);
+              const enrollments = Array.isArray(enrollmentsRes.data) ? enrollmentsRes.data : enrollmentsRes.data.enrollments || [];
+              const found = enrollments.find(e => String(e.course_id) === String(id));
+              if (found) {
+                setEnrollment(found);
+                // Restore checked lessons from progress (if available and lessonsMap is loaded)
+                if (found.progress && lessonsMap && Object.keys(lessonsMap).length > 0) {
+                  const allLessonIds = Object.values(lessonsMap).flat().map(l => l.id);
+                  const numToCheck = Math.round((found.progress / 100) * allLessonIds.length);
+                  setCheckedLessons(new Set(allLessonIds.slice(0, numToCheck)));
+                }
+                // Fetch course by course_id from enrollment
+                try {
+                  const courseRes = await axios.get(`/api/courses/get/${found.course_id}`);
+                  setCourse(courseRes.data.course || courseRes.data);
+                } catch {
+                  setError("Failed to fetch course data.");
+                }
+              } else {
+                // Fallback: fetch course directly
+                try {
+                  const courseRes = await axios.get(`/api/courses/get/${id}`);
+                  setCourse(courseRes.data.course || courseRes.data);
+                } catch {
+                  setError("Failed to fetch course data.");
+                }
+              }
+            } else {
+              setError("Not logged in");
+            }
+          } catch {
+            setError("Failed to fetch enrollment data.");
+          }
         }
         setLoading(false);
       })
-      .catch(() => {
-        setError("Failed to fetch course data.");
+      .catch(async err => {
+        // If not found by enrollment ID, treat as courseId and find enrollment by user+course
+        try {
+          const token = localStorage.getItem("token");
+          const me = await axios.get("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } });
+          const userId = me.data?.user?.id;
+          if (userId) {
+            const enrollmentsRes = await axios.get(`/api/enrollments/user/${userId}`);
+            const enrollments = Array.isArray(enrollmentsRes.data) ? enrollmentsRes.data : enrollmentsRes.data.enrollments || [];
+            const found = enrollments.find(e => String(e.course_id) === String(id));
+            if (found) {
+              setEnrollment(found);
+              // Restore checked lessons from progress (if available and lessonsMap is loaded)
+              if (found.progress && lessonsMap && Object.keys(lessonsMap).length > 0) {
+                const allLessonIds = Object.values(lessonsMap).flat().map(l => l.id);
+                const numToCheck = Math.round((found.progress / 100) * allLessonIds.length);
+                setCheckedLessons(new Set(allLessonIds.slice(0, numToCheck)));
+              }
+              // Fetch course by course_id from enrollment
+              try {
+                const courseRes = await axios.get(`/api/courses/get/${found.course_id}`);
+                setCourse(courseRes.data.course || courseRes.data);
+              } catch {
+                setError("Failed to fetch course data.");
+              }
+            } else {
+              // Fallback: fetch course directly
+              try {
+                const courseRes = await axios.get(`/api/courses/get/${id}`);
+                setCourse(courseRes.data.course || courseRes.data);
+              } catch {
+                setError("Failed to fetch course data.");
+              }
+            }
+          } else {
+            setError("Not logged in");
+          }
+        } catch {
+          setError("Failed to fetch enrollment data.");
+        }
         setLoading(false);
       });
-  }, [id]);
+  }, [id, lessonsMap]);
 
+  // Clean, stepwise data loading
+  const [courseId, setCourseId] = useState(null);
+
+  // Control when to refresh enrollment after PATCH
+  const [refreshEnrollment, setRefreshEnrollment] = useState(true);
+
+  // 1. Fetch enrollment and set courseId
   useEffect(() => {
-    if (!id) return;
+    let isMounted = true;
+    if (!id || !refreshEnrollment) return;
+    setLoading(true);
+    axios.get(`/api/enrollments/get/${id}`)
+      .then(async res => {
+        if (res.data && res.data.success && res.data.enrollment) {
+          const enrollment = res.data.enrollment;
+          if (!isMounted) return;
+          setEnrollment(enrollment);
+          setCourseId(enrollment.course_id);
+        } else {
+          // If not found as enrollment, treat as courseId and find enrollment by user+course
+          try {
+            const token = localStorage.getItem("token");
+            const me = await axios.get("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } });
+            const userId = me.data?.user?.id;
+            if (userId) {
+              const enrollmentsRes = await axios.get(`/api/enrollments/user/${userId}`);
+              const enrollments = Array.isArray(enrollmentsRes.data) ? enrollmentsRes.data : enrollmentsRes.data.enrollments || [];
+              const found = enrollments.find(e => String(e.course_id) === String(id));
+              if (found) {
+                if (!isMounted) return;
+                setEnrollment(found);
+                setCourseId(found.course_id);
+              } else {
+                setEnrollment(null);
+                setCourseId(id);
+              }
+            } else {
+              setError("Not logged in");
+            }
+          } catch {
+            setError("Failed to fetch enrollment data.");
+          }
+        }
+        setLoading(false);
+        setRefreshEnrollment(false); // Only fetch once unless explicitly refreshed
+      })
+      .catch(() => {
+        setEnrollment(null);
+        setCourseId(id);
+        setLoading(false);
+        setRefreshEnrollment(false);
+      });
+    return () => { isMounted = false; };
+  }, [id, refreshEnrollment]);
+
+
+  // 2. Fetch course, modules, lessons when courseId changes
+  useEffect(() => {
+    if (!courseId) return;
+    setModules([]);
+    setLessonsMap({});
     setModulesLoading(true);
-    fetchModulesByCourse(id)
+    setLessonsLoading(true);
+    axios.get(`/api/courses/get/${courseId}`)
+      .then(res => setCourse(res.data.course || res.data))
+      .catch(() => setCourse(null));
+    fetchModulesByCourse(courseId)
       .then(mods => {
         setModules(Array.isArray(mods) ? mods : []);
         setModulesLoading(false);
         // Fetch lessons for each module
-        setLessonsLoading(true);
         Promise.all(
           (Array.isArray(mods) ? mods : []).map(mod =>
             fetchLessonsByModule(mod.id).then(lessons => ({ moduleId: mod.id, lessons })).catch(() => ({ moduleId: mod.id, lessons: [] }))
@@ -78,13 +274,25 @@ const ViewCourse = () => {
         setModulesError("Failed to fetch modules.");
         setModulesLoading(false);
       });
-  }, [id]);
+  }, [courseId]);
+
+  // 3. Only update checkedLessons from progress after lessons are loaded
+  useEffect(() => {
+    if (!enrollment || !enrollment.progress || !lessonsMap || Object.keys(lessonsMap).length === 0) return;
+    const allLessonIds = Object.values(lessonsMap).flat().map(l => l.id);
+    const numToCheck = Math.round((enrollment.progress / 100) * allLessonIds.length);
+    setCheckedLessons(new Set(allLessonIds.slice(0, numToCheck)));
+  }, [enrollment, lessonsMap]);
 
   if (loading) return <div className={styles.container}><div>Loading...</div></div>;
   if (error) return <div className={styles.container}><div style={{color: 'red'}}>{error}</div></div>;
   if (!course) return null;
 
-  const instructor = course.instructor?.name || "N/A";
+  let instructor = course?.instructor_name || course?.instructor || (course?.instructor && course?.instructor.name) || '';
+if (instructor && typeof instructor === 'object' && instructor.name) {
+  instructor = instructor.name;
+}
+if (!instructor || instructor === '[object Object]') instructor = 'N/A';
   const lastUpdated = course.updatedAt
     ? new Date(course.updatedAt).toLocaleDateString()
     : "N/A";
@@ -134,6 +342,14 @@ const ViewCourse = () => {
           {/* Course Content (Modules & Lessons) */}
 <div className={styles.section}>
   <h2 style={{ color: "#fff" }}>Course Content</h2>
+<div style={{ color: '#38d39f', fontWeight: 600, marginBottom: 12 }}>
+  Progress: {percentComplete}%
+  {saveStatus && (
+    <span style={{ marginLeft: 16, color: saveStatus === 'Saved!' ? '#38d39f' : 'orange', fontWeight: 400, fontSize: 15 }}>
+      {saveStatus}
+    </span>
+  )}
+</div>
   {modulesLoading && <div style={{ color: '#94a3b8' }}>Loading modules...</div>}
   {modulesError && <div style={{ color: 'red' }}>{modulesError}</div>}
   {!modulesLoading && modules.length === 0 && (
@@ -192,8 +408,14 @@ const ViewCourse = () => {
                   borderBottom: lidx !== lessonsMap[module.id].length - 1 ? "1px solid #334155" : undefined,
                   cursor: "pointer"
                 }}
-                onClick={() => setExpandedLesson(expandedLesson[module.id] === lidx ? { ...expandedLesson, [module.id]: -1 } : { ...expandedLesson, [module.id]: lidx })}
               >
+                <input
+                  type="checkbox"
+                  checked={checkedLessons.has(lesson.id)}
+                  onChange={e => handleLessonCheck(lesson.id, e.target.checked)}
+                  style={{ marginRight: 12 }}
+                  onClick={e => e.stopPropagation()}
+                />
                 <span style={{ marginRight: 12, fontSize: 18 }}>
                   {lesson.content_type === "video" && "🎬"}
                   {lesson.content_type === "text" && "📄"}

@@ -60,12 +60,15 @@ const StudentPanel = () => {
   };
 
   const handleContinueCourse = (course) => {
-    // Navigate to ViewCourse with course data as state
-    navigate(
-      `/view-course/${course.id || course._id || course.title}`,
-      { state: { course } }
-    );
+    // Use enrollmentId if present, otherwise fallback to course id
+    if (course.enrollmentId) {
+      navigate(`/view-course/${course.enrollmentId}`, { state: { course } });
+    } else {
+      navigate(`/view-course/${course.id || course._id || course.title}`, { state: { course } });
+    }
   };
+
+
 
   // Fetch user data on mount
   useEffect(() => {
@@ -125,6 +128,7 @@ const StudentPanel = () => {
     return {
       ...course,
       progress: enrollment.progress ?? 0,
+      enrollmentId: enrollment.id || enrollment._id,
     };
   });
 

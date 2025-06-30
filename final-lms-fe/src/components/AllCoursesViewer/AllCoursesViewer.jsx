@@ -17,6 +17,9 @@ import { useAuth } from "../../utils/AuthContext";
 import styles from "./AllCoursesViewer.module.css";
 
 const AllCoursesViewer = () => {
+  ('AllCoursesViewer rendered');
+  // Used to force re-render if React batching fails
+  const [forceRerender, setForceRerender] = useState(0);
   // State declarations
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,12 +104,38 @@ const AllCoursesViewer = () => {
 
   // Fetch courses on component mount
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchCoursesAndEnrollments = async () => {
       try {
-        const response = await axios.get("/api/courses/getall");
-        setCourses(response.data.courses || []);
+        const token = localStorage.getItem("token");
+        // Fetch all courses
+        const [coursesRes, enrollmentsRes] = await Promise.all([
+          axios.get("/api/courses/getall"),
+          user && user.id
+            ? axios.get(`/api/enrollments/user/${user.id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            })
+            : Promise.resolve({ data: { enrollments: [] } }),
+        ]);
+        const courses = coursesRes.data.courses || [];
+        // Normalize enrollments array
+        const enrollmentsData = Array.isArray(enrollmentsRes.data)
+          ? enrollmentsRes.data
+          : enrollmentsRes.data.enrollments || [];
+        // Create a Set of enrolled course IDs for fast lookup
+        const enrolledCourseIds = new Set(
+          enrollmentsData.map((enr) => String(enr.course_id))
+        );
+        // Mark each course with isEnrolled for the current user
+        const updatedCourses = courses.map((course) => ({
+          ...course,
+          isEnrolled:
+            enrolledCourseIds.has(String(course.id)) ||
+            enrolledCourseIds.has(String(course._id)),
+        }));
+        setCourses(updatedCourses);
       } catch (err) {
-        console.error("Error fetching courses:", err);
+        console.error("Error fetching courses or enrollments:", err);
         setError("Failed to load courses. Please try again later.");
         setCourses([]);
       } finally {
@@ -114,8 +143,9 @@ const AllCoursesViewer = () => {
       }
     };
 
-    fetchCourses();
-  }, []);
+    fetchCoursesAndEnrollments();
+    // Only refetch when user changes
+  }, [user]);
 
   // Toggle expanded/collapsed state for a course description
   const handleToggleDescription = (courseId) => {
@@ -159,14 +189,18 @@ const AllCoursesViewer = () => {
           message: "Successfully enrolled in the course!",
           severity: "success",
         });
-        // Update the course to show enrolled status
-        setCourses((prevCourses) =>
-          prevCourses.map((course) =>
+        // Instantly update only the enrolled course in local state
+        setCourses((prevCourses) => {
+          const updated = prevCourses.map((course) =>
             course.id === courseId || course._id === courseId
               ? { ...course, isEnrolled: true }
               : course
-          )
-        );
+          );
+          ('Updated courses after enrollment:', updated);
+          return [...updated]; // force new array reference
+        });
+        // Force a re-render in case React batching misses it
+        setForceRerender((v) => v + 1);
       }
     } catch (err) {
       console.error("Enrollment error:", err);
@@ -244,18 +278,18 @@ const AllCoursesViewer = () => {
                       style={
                         isExpanded
                           ? {
-                              overflow: "visible",
-                              display: "block",
-                              WebkitLineClamp: "unset",
-                              WebkitBoxOrient: "unset",
-                            }
+                            overflow: "visible",
+                            display: "block",
+                            WebkitLineClamp: "unset",
+                            WebkitBoxOrient: "unset",
+                          }
                           : {
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }
                       }
                       ref={(el) => {
                         if (el) {
@@ -265,48 +299,18 @@ const AllCoursesViewer = () => {
                     >
                       {course.description || "No description available."}
                     </Typography>
-                    {showMoreVisible[courseId] && (
-                      <Button
-                        size="small"
-                        color="secondary"
-                        sx={{
-                          marginLeft: 0,
-                          marginTop: "4px",
-                          textTransform: "none",
-                          padding: "2px 4px",
-                          minWidth: "auto",
-                        }}
-                        onClick={() => handleToggleDescription(courseId)}
-                      >
-                        {isExpanded ? "Show Less" : "Show More"}
-                      </Button>
-                    )}
                   </CardContent>
-                  <CardActions
-                    sx={{
-                      justifyContent: "space-between",
-                      padding: "8px 16px 16px",
-                    }}
-                  >
+                  <CardActions className={styles.cardActions}>
                     <Button
                       size="small"
                       variant="contained"
+                      className={
+                        course.isEnrolled
+                          ? `${styles.enrollButton} ${styles.enrolled}`
+                          : styles.enrollButton
+                      }
                       disabled={course.isEnrolled || enrolling[courseId]}
                       onClick={() => handleEnroll(courseId)}
-                      sx={{
-                        background: course.isEnrolled
-                          ? "linear-gradient(90deg, #10b981 10%, #059669 90%)"
-                          : "linear-gradient(90deg, #6366f1 10%, #a21caf 90%)",
-                        "&:hover": {
-                          background: course.isEnrolled
-                            ? "linear-gradient(90deg, #059669 10%, #047857 90%)"
-                            : "linear-gradient(90deg, #a21caf 10%, #7e22ce 90%)",
-                        },
-                        "&.Mui-disabled": {
-                          background: "#4b5563",
-                          color: "#9ca3af",
-                        },
-                      }}
                     >
                       {enrolling[courseId] ? (
                         <CircularProgress size={20} color="inherit" />

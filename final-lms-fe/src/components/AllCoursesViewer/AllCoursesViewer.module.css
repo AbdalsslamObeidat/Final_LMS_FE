@@ -70,6 +70,39 @@
   transform: translateY(-1px);
 }
 
+.cardActions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px 16px;
+}
+
+.enrollButton {
+  margin-left: 8px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  text-transform: none;
+  background: linear-gradient(90deg, #6366f1 10%, #a21caf 90%);
+  color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.enrollButton:hover {
+  background: linear-gradient(90deg, #a21caf 10%, #6366f1 90%);
+  transform: translateY(-1px);
+}
+
+.enrollButton.enrolled {
+  background: linear-gradient(90deg, #10b981 10%, #059669 90%) !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.enrollButton:disabled {
+  background: #4b5563 !important;
+  color: #9ca3af !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .coursesGrid {
