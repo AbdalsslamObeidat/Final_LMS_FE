@@ -42,8 +42,16 @@
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   flex: 1;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.menuItemContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .menuItem {
@@ -51,14 +59,40 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 1rem;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
+}
+
+.menuItemContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-left: 1.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid #475569;
+}
+
+.submenuItem {
+  font-size: 0.9rem !important;
+  padding: 0.5rem 0.75rem !important;
+  opacity: 0.9;
+}
+
+.submenuItem:hover {
+  opacity: 1;
 }
 
 .menuItem:hover {

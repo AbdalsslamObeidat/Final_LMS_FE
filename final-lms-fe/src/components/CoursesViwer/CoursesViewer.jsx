@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Paper, Grid, Button, IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Paper, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { fetchCourses } from '../../api/authApi';
 import { fetchCategories } from '../../api/categories';
@@ -8,12 +7,7 @@ import { useAuth } from '../../utils/AuthContext';
 import styles from './CoursesViewer.module.css';
 import clStyles from '../ContinueLearning/ContinueLearning.module.css';
 
-/**
- * Component to fetch and display courses for the current instructor.
- * Handles loading, error, and reload logic.
- * Accepts onEdit and onDelete as props.
- */
-const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onConfigure }, ref) {
+const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onConfigure }, ref) {
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -31,10 +25,9 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onCo
         fetchCourses(),
         fetchCategories()
       ]);
-      let cats = [];
-      if (catRes.categories) cats = catRes.categories;
-      else if (Array.isArray(catRes)) cats = catRes;
+      const cats = Array.isArray(catRes) ? catRes : catRes.categories || [];
       setCategories(cats);
+
       if (res.success && user) {
         setCourses(res.courses.filter(c => String(c.instructor_id) === String(user.id)));
       } else {
@@ -53,7 +46,6 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onCo
   }, [user]);
 
   useEffect(() => {
-    // Check overflow for each course description
     const newOverflowing = {};
     courses.forEach((course) => {
       const el = descRefs.current[course.id];
@@ -68,21 +60,16 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onCo
     reloadCourses: loadCourses
   }));
 
-  if (loading) return (<div>Loading courses...</div>);
-  if (error) return (<div>Error loading courses.</div>);
+  if (loading) return (<div className={styles.loading}>Loading courses...</div>);
+  if (error) return (<div className={styles.error}>Error loading courses.</div>);
 
   return (
-    <Paper sx={{
-      backgroundColor: '#121212',
-      '&.MuiPaper-root': {
-        backgroundImage: 'none !important',
-      }
-    }}>
+    <Paper className={styles.paper}>
       <div className={clStyles.coursesGrid}>
         {courses.map((course) => {
           const isExpanded = expanded[course.id] || false;
           return (
-            <div className={clStyles.courseCard} key={course.id}>
+            <div className={`${clStyles.courseCard} ${styles.courseCard}`} key={course.id}>
               <div className={`${clStyles.courseHeader} ${clStyles.blue}`}>
                 {course.thumbnail_url && (
                   <img
@@ -92,8 +79,10 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onCo
                   />
                 )}
               </div>
+
               <div className={clStyles.courseContent}>
                 <h4 className={clStyles.courseTitle}>{course.title || 'Untitled Course'}</h4>
+
                 <div className={clStyles.courseDescription}>
                   <span
                     ref={el => descRefs.current[course.id] = el}
@@ -101,6 +90,7 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onCo
                   >
                     {course.description || 'No description available.'}
                   </span>
+
                   {overflowing[course.id] && (
                     <button
                       className={clStyles.showMoreBtn}
@@ -111,44 +101,45 @@ const CoursesViewer = forwardRef(function CoursesViewer({ onEdit, onDelete, onCo
                     </button>
                   )}
                 </div>
+
                 <div className={styles.categoryRow}>
                   <span><strong>Category:</strong> <span className={styles.categoryValue}>{(() => {
                     const cat = categories.find(cat => String(cat.id) === String(course.category_id) || String(cat._id) === String(course.category_id));
                     return cat ? cat.name : 'N/A';
                   })()}</span></span>
-                  <span style={{ marginLeft: '1.2rem' }}><strong>Created:</strong> <span className={styles.dateValue}>{course.created_at ? new Date(course.created_at).toLocaleDateString('en-GB') : 'N/A'}</span></span>
+                  <span className={styles.createdDate}>
+                    <strong>Created:</strong> <span className={styles.dateValue}>
+                      {course.created_at ? new Date(course.created_at).toLocaleDateString('en-GB') : 'N/A'}
+                    </span>
+                  </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+
+                <div className={styles.buttonRow}>
                   <Button
                     variant="outlined"
                     color="secondary"
                     size="small"
                     onClick={() => onConfigure(course)}
-                    style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
+                    className={styles.configureButton}
                   >
                     Configure
                   </Button>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+                  <div className={styles.actionButtons}>
                     <Button
                       variant="contained"
                       color="primary"
                       size="small"
                       onClick={() => onEdit(course)}
-                      style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
+                      className={styles.editButton}
                     >
                       <EditIcon />
                     </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => onDelete(course.id)}
-                      style={{ minWidth: 0, padding: '6px 12px', borderRadius: 8 }}
-                    >
-                      <DeleteIcon />
-                    </Button>
+
+
                   </div>
                 </div>
+
               </div>
             </div>
           );

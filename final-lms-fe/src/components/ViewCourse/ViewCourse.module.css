@@ -1,0 +1,295 @@
+.container {
+  padding: 20px;
+}
+
+.loading {
+  color: #ccc;
+}
+
+.error {
+  color: red;
+}
+
+.lessonOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lessonPanel {
+  background: #fff;
+  padding: 20px;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 8px;
+  position: relative;
+}
+
+.lessonHeader h3 {
+  margin: 0;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.lessonContent {
+  margin-top: 16px;
+}
+
+.noContent {
+  color: #999;
+}
+
+.videoContainer {
+  margin-top: 10px;
+}
+
+.video {
+  width: 100%;
+}
+
+.lessonNavigation {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navButton {
+  padding: 8px 16px;
+  background-color: #38d39f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.progressContainer {
+  flex-grow: 1;
+  margin: 0 10px;
+  background-color: #e0e0e0;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: #38d39f;
+}
+
+.courseContent {
+  margin-top: 20px;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.courseContentTitle {
+  color: #fff;
+}
+
+.progressText {
+  color: #38d39f;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.saveStatus {
+  margin-left: 16px;
+  font-weight: 400;
+  font-size: 15px;
+}
+
+.saved {
+  color: #38d39f;
+}
+
+.errorStatus {
+  color: orange;
+}
+
+.modulesLoading {
+  color: #94a3b8;
+}
+
+/* Header Styling */
+
+.courseHeader {
+  background-color: #1e293b;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.courseTitle {
+  color: #38d39f;
+  font-size: 28px;
+  margin: 0;
+}
+
+.courseMeta {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.courseDescriptionContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.courseImage {
+  width: 320px;
+  border-radius: 12px;
+  background: #0f172a;
+  margin-bottom: 18px;
+}
+
+.descriptionTitle {
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.courseDescription {
+  max-width: 700px;
+  color: #e2e8f0;
+  text-align: center;
+  font-size: 18px;
+}
+
+/* Paper Styling */
+
+.noModules {
+  background-color: #1e293b;
+  padding: 1rem 1.5rem;
+  color: #94a3b8;
+}
+
+.accordionSummary {
+  font-weight: 600;
+  padding: 0 1.5rem;
+  min-height: 56px;
+}
+
+.moduleTitle {
+  background: linear-gradient(90deg, #60a5fa, #38d39f 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 20px;
+  display: inline-block;
+}
+
+.moduleDescription {
+  color: #94a3b8;
+  font-weight: 400;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.accordionDetails {
+  background-color: #0f172a;
+  padding: 0 2rem 1rem;
+}
+
+.lessonsLoading,
+.lessonsError,
+.noLessons {
+  color: #94a3b8;
+  margin: 8px 0;
+}
+
+.lessonsError {
+  color: red;
+}
+
+.lessonItem {
+  display: flex;
+  align-items: center;
+  color: #60a5fa;
+  margin: 0.5rem 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #334155;
+  cursor: pointer;
+}
+
+.lessonCheckbox {
+  margin-right: 12px;
+}
+
+.lessonIcon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.lessonTitle {
+  flex: 1;
+}
+
+.lessonDuration {
+  margin-left: 16px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.lessonContent {
+  background: #172136;
+  color: #e0e7ef;
+  padding: 1rem 2rem;
+  border-radius: 6px;
+  margin: 8px 0 16px 0;
+}
+
+.textContent {
+  white-space: pre-wrap;
+}
+
+.projectContent {
+  font-style: italic;
+}
+
+.noLessonContent {
+  color: #94a3b8;
+}
+
+.lessonCheckboxLabel {
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+  font-size: 15px;
+  color: #e2e8f0;
+}
+
+.lessonDuration {
+  margin-left: 16px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-style: italic;
+}

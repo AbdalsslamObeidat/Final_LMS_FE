@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Paper, Typography, Box, TextField, Button, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../../utils/AuthContext';
-import styles from './CourseForm.module.css';
+import styles from './CreateCourse.module.css';
 
-export default function CourseForm({ onSubmit, onCancel, initialData }) {
+export default function CreateCourse({ onSubmit, onCancel, initialData }) {
   const [form, setForm] = useState({
     title: '',
     description: '',

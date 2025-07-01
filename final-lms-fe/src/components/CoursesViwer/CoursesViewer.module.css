@@ -50,3 +50,64 @@
 .dateValue {
   color: #fff;
 }
+.paper {
+  background-color: #121212;
+  background-image: none !important;
+}
+
+.courseCard {
+  background-color: black;
+}
+
+.loading {
+  color: #94a3b8;
+  padding: 1rem;
+}
+
+.error {
+  color: red;
+  padding: 1rem;
+}
+
+.categoryRow {
+  color: #a5b4fc;
+  font-size: 0.97rem;
+  margin-bottom: 0.5rem;
+}
+
+.categoryValue {
+  color: #fff;
+}
+
+.createdDate {
+  margin-left: 1.2rem;
+}
+
+.dateValue {
+  color: #fff;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.configureButton {
+  min-width: 0 !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton,
+.deleteButton {
+  min-width: 0 !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+}
